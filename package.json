@@ -1,0 +1,29 @@
+{
+  "name": "ics-parcial2",
+  "version": "1.0.0",
+  "description": "",
+  "homepage": "https://github.com/MatiasELima/ics-parcial2#readme",
+  "bugs": {
+    "url": "https://github.com/MatiasELima/ics-parcial2/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/MatiasELima/ics-parcial2.git"
+  },
+  "license": "ISC",
+  "author": "",
+  "type": "commonjs",
+  "main": "index.js",
+  "scripts": {
+    "test": "jest",
+    "start": "node app.js",
+    "build": "node -c app.js && echo 'Build local exitosa. Código sin errores de sintaxis.'"
+  },
+  "dependencies": {
+    "express": "^5.2.1"
+  },
+  "devDependencies": {
+    "jest": "^30.4.2",
+    "supertest": "^7.2.2"
+  }
+}
