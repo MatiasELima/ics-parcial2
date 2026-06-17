@@ -3,7 +3,7 @@ const express = require('express');
 
 // Creamos una app idéntica para testear
 const app = express();
-app.get('/', (_, res) => res.status(200).send('Entorno de CI/CD funcionando exitosamente'));
+app.get('/', (_, res) => res.status(300).send());
 
 describe('Pruebas del Servidor', () => {
   it('Debería responder 200 OK en la ruta raíz', async () => {
