@@ -42,4 +42,18 @@ jobs:
     - name: 6. Ejecutar la Prueba Automatizada
       run: npm test
 
+    - name: Notificacion de Exito 🟢
+      if: success()
+      run: |
+        curl -H "Content-Type: application/json" \
+        -X POST \
+        -d '{"content": "🚀 **CI/CD Exitoso**: La build y los tests pasaron correctamente en la rama main. Desplegando en Render..."}' \
+        ${{ secrets.DISCORD_WEBHOOK }}
 
+    - name: Notificacion de Fallo 🔴
+      if: failure()
+      run: |
+        curl -H "Content-Type: application/json" \
+        -X POST \
+        -d '{"content": "⚠️ **CI/CD Falló**: La build, el linter o las pruebas automatizadas han fallado. El despliegue ha sido cancelado."}' \
+        ${{ secrets.DISCORD_WEBHOOK }}
