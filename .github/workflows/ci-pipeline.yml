@@ -74,6 +74,9 @@ jobs:
 
     - name: Analisis con SonarCloud 📊
       uses: sonarsource/sonarcloud-github-action@v3
+      with:
+        # ⚠️ ESTA LÍNEA ES LA MAGIA: Obliga al pipeline a esperar el veredicto de Sonar
+        args: -Dsonar.qualitygate.wait=true
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Ya lo provee GitHub por defecto
         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}   # El que guardaste en Secrets
