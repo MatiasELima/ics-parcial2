@@ -25,11 +25,28 @@ jobs:
     - name: Ejecutar Linter 🔍
       run: npm run lint
 
-    - name: Feedback si falla el Linter 🔴
+    - name: Feedback si falla el linter
       if: failure()
       run: |
+        # Conseguimos la hora actual de Argentina/región (GMT-3)
+        TZ="America/Argentina/Buenos_Aires"
+        HORA=$(date +"%d/%m/%Y %H:%M:%S")
+        
         curl -H "Content-Type: application/json" -X POST \
-        -d '{"content": "⚠️ **CI/CD Falló en la etapa de Calidad**: El Linter (ESLint) detectó código mal estructurado o variables sin usar. El proceso se detuvo en seco."}' \
+        -d '{
+          "embeds": [{
+            "title": "❌ Pipeline Interrumpido - Fallo en la etapa de calidad",
+            "description": "El proceso de CI/CD se ha detenido debido a un error crítico.",
+            "color": 15158332, 
+            "fields": [
+              { "name": "💻 Último Commit", "value": "`${{ github.event.head_commit.message }}`", "inline": false },
+              { "name": "👤 Autor", "value": "${{ github.actor }}", "inline": true },
+              { "name": "🌿 Rama", "value": "`${{ github.ref_name }}`", "inline": true },
+              { "name": "⏱️ Momento del Fallo", "value": "'"$HORA"'", "inline": false }
+            ],
+            "footer": { "text": "Revisá los logs en GitHub Actions para más detalles." }
+          }]
+        }' \
         ${{ secrets.DISCORD_WEBHOOK }}
 
   # ----------------------------------------------------
@@ -56,8 +73,25 @@ jobs:
     - name: Feedback si fallan los Tests 🔴
       if: failure()
       run: |
+        # Conseguimos la hora actual de Argentina/región (GMT-3)
+        TZ="America/Argentina/Buenos_Aires"
+        HORA=$(date +"%d/%m/%Y %H:%M:%S")
+        
         curl -H "Content-Type: application/json" -X POST \
-        -d '{"content": "❌ **CI/CD Falló en la etapa de Lógica**: Una o más pruebas automatizadas de Jest han fallado. Tu servidor Express está devolviendo respuestas incorrectas."}' \
+        -d '{
+          "embeds": [{
+            "title": "❌ Pipeline Interrumpido - Fallo en la etapa de logica",
+            "description": "El proceso de CI/CD se ha detenido debido a un error crítico.",
+            "color": 15158332, 
+            "fields": [
+              { "name": "💻 Último Commit", "value": "`${{ github.event.head_commit.message }}`", "inline": false },
+              { "name": "👤 Autor", "value": "${{ github.actor }}", "inline": true },
+              { "name": "🌿 Rama", "value": "`${{ github.ref_name }}`", "inline": true },
+              { "name": "⏱️ Momento del Fallo", "value": "'"$HORA"'", "inline": false }
+            ],
+            "footer": { "text": "Revisá los logs en GitHub Actions para más detalles." }
+          }]
+        }' \
         ${{ secrets.DISCORD_WEBHOOK }}
 
   # ----------------------------------------------------
@@ -84,13 +118,45 @@ jobs:
     - name: Feedback de Exito Total 🟢
       if: success()
       run: |
+        TZ="America/Argentina/Buenos_Aires"
+        HORA=$(date +"%d/%m/%Y %H:%M:%S")
+        
         curl -H "Content-Type: application/json" -X POST \
-        -d '{"content": "🚀 **CI/CD Exitoso**: Calidad (ESLint), Lógica (Jest) y Seguridad (SonarQube) han pasado al 100%. Código seguro listo en Render!"}' \
+        -d '{
+          "embeds": [{
+            "title": "🚀 Pipeline Exitoso - ¡Todo Verde!",
+            "description": "Calidad, Lógica y Seguridad aprobadas al 100%. Código seguro listo en Render.",
+            "color": 3066993,
+            "fields": [
+              { "name": "💻 Commit Desplegado", "value": "`${{ github.event.head_commit.message }}`", "inline": false },
+              { "name": "👤 Autor", "value": "${{ github.actor }}", "inline": true },
+              { "name": "🌿 Rama", "value": "`${{ github.ref_name }}`", "inline": true },
+              { "name": "⏱️ Fecha de Despliegue", "value": "'"$HORA"'", "inline": false }
+            ]
+          }]
+        }' \
         ${{ secrets.DISCORD_WEBHOOK }}
 
     - name: Feedback si falla SonarQube 🔴
       if: failure()
       run: |
+        # Conseguimos la hora actual de Argentina/región (GMT-3)
+        TZ="America/Argentina/Buenos_Aires"
+        HORA=$(date +"%d/%m/%Y %H:%M:%S")
+        
         curl -H "Content-Type: application/json" -X POST \
-        -d '{"content": "📊 **CI/CD Falló en SonarQube**: El análisis estático profundo detectó código duplicado, vulnerabilidades o no cumplió el Quality Gate."}' \
+        -d '{
+          "embeds": [{
+            "title": "❌ Pipeline Interrumpido - Fallo en Sonarqube",
+            "description": "El proceso de CI/CD se ha detenido debido a un error crítico.",
+            "color": 15158332, 
+            "fields": [
+              { "name": "💻 Último Commit", "value": "`${{ github.event.head_commit.message }}`", "inline": false },
+              { "name": "👤 Autor", "value": "${{ github.actor }}", "inline": true },
+              { "name": "🌿 Rama", "value": "`${{ github.ref_name }}`", "inline": true },
+              { "name": "⏱️ Momento del Fallo", "value": "'"$HORA"'", "inline": false }
+            ],
+            "footer": { "text": "Revisá los logs en GitHub Actions para más detalles." }
+          }]
+        }' \
         ${{ secrets.DISCORD_WEBHOOK }}
