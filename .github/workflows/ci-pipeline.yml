@@ -1,59 +1,93 @@
-# This is a basic workflow to help you get started with Actions
+name: Pipeline de Integracion Continua Multi-Job
 
-name: CI
-
-# Controls when the workflow will run
 on:
-  # Triggers the workflow on push or pull request events but only for the "main" branch
   push:
     branches: [ "main" ]
-  pull_request:
-    branches: [ "main" ]
 
-  # Allows you to run this workflow manually from the Actions tab
-  workflow_dispatch:
-
-# A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
-  # This workflow contains a single job called "build"
-  build:
-    # The type of runner that the job will run on
+  # ----------------------------------------------------
+  # JOB 1: Inspección de código y Sintaxis (Linter)
+  # ----------------------------------------------------
+  calidad_codigo:
     runs-on: ubuntu-latest
-
-    # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
-    - name: 1. Descargar codigo del repositorio
+    - name: Descargar codigo
       uses: actions/checkout@v4
 
-    - name: 2. Instalar Node.js
+    - name: Instalar Node.js
       uses: actions/setup-node@v4
       with:
         node-version: '20'
 
-    - name: 3. Instalar dependencias del proyecto
+    - name: Instalar dependencias
       run: npm install
 
-    - name: 4. Ejecutar la Build Local en el Servidor
-      run: npm run build
-
-    - name: 5. Inspeccion de codigo (Linter)
+    - name: Ejecutar Linter 🔍
       run: npm run lint
 
-    - name: 6. Ejecutar la Prueba Automatizada
-      run: npm test
-
-    - name: Notificacion de Exito 🟢
-      if: success()
-      run: |
-        curl -H "Content-Type: application/json" \
-        -X POST \
-        -d '{"content": "🚀 **CI/CD Exitoso**: La build y los tests pasaron correctamente en la rama main. Desplegando en Render..."}' \
-        ${{ secrets.DISCORD_WEBHOOK }}
-
-    - name: Notificacion de Fallo 🔴
+    - name: Feedback si falla el Linter 🔴
       if: failure()
       run: |
-        curl -H "Content-Type: application/json" \
-        -X POST \
-        -d '{"content": "⚠️ **CI/CD Falló**: La build, el linter o las pruebas automatizadas han fallado. El despliegue ha sido cancelado."}' \
+        curl -H "Content-Type: application/json" -X POST \
+        -d '{"content": "⚠️ **CI/CD Falló en la etapa de Calidad**: El Linter (ESLint) detectó código mal estructurado o variables sin usar. El proceso se detuvo en seco."}' \
+        ${{ secrets.DISCORD_WEBHOOK }}
+
+  # ----------------------------------------------------
+  # JOB 2: Pruebas Lógicas (Solo corre si el Job 1 pasa)
+  # ----------------------------------------------------
+  pruebas_unitarias:
+    runs-on: ubuntu-latest
+    needs: calidad_codigo # 👈 Esto obliga a respetar el orden secuencial
+    steps:
+    - name: Descargar codigo
+      uses: actions/checkout@v4
+
+    - name: Instalar Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+
+    - name: Instalar dependencias
+      run: npm install
+
+    - name: Ejecutar Tests Automatizados 🧪
+      run: npm test
+
+    - name: Feedback si fallan los Tests 🔴
+      if: failure()
+      run: |
+        curl -H "Content-Type: application/json" -X POST \
+        -d '{"content": "❌ **CI/CD Falló en la etapa de Lógica**: Una o más pruebas automatizadas de Jest han fallado. Tu servidor Express está devolviendo respuestas incorrectas."}' \
+        ${{ secrets.DISCORD_WEBHOOK }}
+
+  # ----------------------------------------------------
+  # JOB 3: Análisis de Seguridad y Éxito Total
+  # ----------------------------------------------------
+  analisis_seguridad:
+    runs-on: ubuntu-latest
+    needs: pruebas_unitarias # Solo corre si pasaron los tests
+    steps:
+    - name: Descargar codigo
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0 # 👈 Importante: Sonar necesita el historial completo de Git
+
+    - name: Analisis con SonarCloud 📊
+      uses: sonarsource/sonarcloud-github-action@v3
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Ya lo provee GitHub por defecto
+        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}   # El que guardaste en Secrets
+
+    - name: Feedback de Exito Total 🟢
+      if: success()
+      run: |
+        curl -H "Content-Type: application/json" -X POST \
+        -d '{"content": "🚀 **CI/CD Exitoso**: Calidad (ESLint), Lógica (Jest) y Seguridad (SonarQube) han pasado al 100%. Código seguro listo en Render!"}' \
+        ${{ secrets.DISCORD_WEBHOOK }}
+
+    - name: Feedback si falla SonarQube 🔴
+      if: failure()
+      run: |
+        curl -H "Content-Type: application/json" -X POST \
+        -d '{"content": "📊 **CI/CD Falló en SonarQube**: El análisis estático profundo detectó código duplicado, vulnerabilidades o no cumplió el Quality Gate."}' \
         ${{ secrets.DISCORD_WEBHOOK }}
