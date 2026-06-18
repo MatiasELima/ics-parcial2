@@ -36,5 +36,10 @@ jobs:
     - name: 4. Ejecutar la Build Local en el Servidor
       run: npm run build
 
-    - name: 5. Ejecutar la Prueba Automatizada
+    - name: 5. Inspeccion de codigo (Linter)
+      run: npm run lint
+
+    - name: 6. Ejecutar la Prueba Automatizada
       run: npm test
+
+

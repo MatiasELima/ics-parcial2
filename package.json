@@ -17,12 +17,16 @@
   "scripts": {
     "test": "jest",
     "start": "node app.js",
-    "build": "node -c app.js && echo 'Build local exitosa. Código sin errores de sintaxis.'"
+    "build": "docker build -t ics-parcial2:local .",
+    "lint": "eslint ."
   },
   "dependencies": {
     "express": "^5.2.1"
   },
   "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "eslint": "^10.5.0",
+    "globals": "^17.6.0",
     "jest": "^30.4.2",
     "supertest": "^7.2.2"
   }
