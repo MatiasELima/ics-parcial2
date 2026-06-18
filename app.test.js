@@ -8,6 +8,6 @@ app.get('/', (_, res) => res.status(200).send());
 describe('Pruebas del Servidor', () => {
   it('Debería responder 200 OK en la ruta raíz', async () => {
     const response = await request(app).get('/');
-    expect(response.statusCode).toBe(300);
+    expect(response.statusCode).toBe(200);
   });
 });
